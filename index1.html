@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>Quizz</title>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h1 style="margin-bottom:30px;">Quizz</h1>
+      <div v-show="showStart">
+        <h5>Please choose a quiz and start it</h5>
+        <select class="form-control selections" v-model="quizSelectedID">
+          <option v-for="quiz in quizs" v-bind:value="quiz.id">{{quiz.text}}</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" @click="startQuiz" v-show="showStart">Start</button>
+      <button class="btn btn-primary" @click="backToHome" v-show="showResult">Home</button>
+      <div class="questions" v-show="showQuestions">
+        <div class="scrollView">
+          <question-item v-for="question in quizs[quizSelectedID-1].questions" v-bind:question-data="question" v-bind:key="question.id">
+          </question-item>
+        </div>
+        <div class="btns">
+          <button class="btn btn-primary" type="button"  @click="submitQuiz">Submit</button>
+          <button class="btn btn-danger" type="button" @click="cancelQuiz">Cancel</button>
+        </div>
+      </div>
+      <div class="result" v-show="showResult" >
+        <div class="scrollView">
+          <answer-item v-for="question in quizs[quizSelectedID-1].questions" v-bind:answer-data="question" v-bind:key="question.id">
+          </answer-item>
+        </div>
+        <h5 class="score">Your score is {{score()}}!</h5>
+      </div>
+    </div>
+
+    <script>
+      Vue.component('question-item', {
+        props: ['questionData'],
+        template: '<div><h3 style="text-align:left">{{questionData.id}}.{{questionData.title}}</h3><div class="row"><ul><li v-for="option in questionData.options" class="col-xs-12 col-md-8"> <span v-if="questionData.hasPhoto==false"><input type="radio" v-model="questionData.myanwser" v-bind:value="option.text">{{option.text}}</input></span> <span v-else><input type="radio" v-model="questionData.myanwser" v-bind:value="option.text"><img :src="option.text" alt="" style="width:180px; height:120px;"></input></span> </li></ul></div></div>'
+        // template: '<ol><li v-for="option in questionData.options">{{option.text}}</li></ol>',
+        // data: function(){
+        //   return {thisOptions : this.questionData.options}
+        // }
+      })
+
+      Vue.component('answer-item', {
+        props: ['answerData'],
+        template: '<div style="text-align:left;"><h3>{{answerData.id}}.{{answerData.title}}</h3><div v-if="answerData.hasPhoto==false"><h5>You have chosed the "{{answerData.myanwser}}"</h5><h5 v-bind:class="{correct : answerData.myanwser == answerData.correctAnswer, wrong : answerData.myanwser != answerData.correctAnswer }">The right answer is "{{answerData.correctAnswer}}"</h5></div> <div v-else><h5>You have chosed the <img :src="answerData.myanwser" alt="" style="width:120px; height:80px;"></h5><h5 v-bind:class="{correct : answerData.myanwser == answerData.correctAnswer, wrong : answerData.myanwser != answerData.correctAnswer }">The right answer is <img :src="answerData.correctAnswer" alt="" style="width:120px; height:80px;"></h5></div></div>'
+      })
+
+      new Vue({
+        el: '#app',
+        data: {
+            showStart: true,
+            showQuestions: false,
+            showResult: false,
+            quizSelectedID: '1',
+            questionsSelected: [],
+            quizs: [
+            {id:'1', text:'Sport', questions: [{id: '1', title:'Is Paris from France?', myanwser:'' , correctAnswer:'YES', options: [{text:'YES'}, {text:'NO'}], hasPhoto: false},
+            {id: '2', title:'Mpabbé is from which country?', myanwser:'', correctAnswer:'FRANCE', options: [{text:'FRANCE'}, {text:'ENGLAND'}, {text:'HOLLAND'}], hasPhoto: false},
+            {id: '3', title:'Which fruit is green?', myanwser:'' , correctAnswer:'KIWI', options: [{text:'KIWI'}, {text:'ORANGE'}, {text:'APPLE'}], hasPhoto: false},
+            {id: '4', title:'Who is a basketball player?', myanwser:'' , correctAnswer:'JAMES', options: [{text:'GIROUD'}, {text:'JAMES'}, {text:'MESSI'}, {text:'RONALDO'}], hasPhoto: false},
+            {id: '5', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}], hasPhoto: false},
+            {id: '6', title:'Which photo is about robot?', myanwser:'' , correctAnswer:'./robot.jpg', options: [{text:'./car.jpg'}, {text:'./train.jpg'}, {text:'./robot.jpg'}]}], hasPhoto: true},
+
+            {id:'2', text:'Culture', questions: [{id: '1', title:'Is Lyon from France?', myanwser:'' , correctAnswer:'YES', options: [{text:'YES'}, {text:'NO'}], hasPhoto: false},
+            {id: '2', title:'Mpabbé is from which country?', myanwser:'', correctAnswer:'FRANCE', options: [{text:'FRANCE'}, {text:'ENGLAND'}, {text:'HOLLAND'}], hasPhoto: false},
+            {id: '3', title:'Which fruit is green?', myanwser:'' , correctAnswer:'KIWI', options: [{text:'KIWI'}, {text:'ORANGE'}, {text:'APPLE'}], hasPhoto: false},
+            {id: '4', title:'Who is a basketball player?', myanwser:'' , correctAnswer:'JAMES', options: [{text:'GIROUD'}, {text:'JAMES'}, {text:'MESSI'}, {text:'RONALDO'}], hasPhoto: false},
+            {id: '5', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}], hasPhoto: false}]},
+
+            {id:'3', text:'Nature', questions: [{id: '1', title:'Is Lille from France?', myanwser:'' , correctAnswer:'YES', options: [{text:'YES'}, {text:'NO'}], hasPhoto: false},
+            {id: '2', title:'Mpabbé is from which country?', myanwser:'', correctAnswer:'FRANCE', options: [{text:'FRANCE'}, {text:'ENGLAND'}, {text:'HOLLAND'}], hasPhoto: false},
+            {id: '3', title:'Which fruit is green?', myanwser:'' , correctAnswer:'KIWI', options: [{text:'KIWI'}, {text:'ORANGE'}, {text:'APPLE'}], hasPhoto: false},
+            {id: '4', title:'Who is a basketball player?', myanwser:'' , correctAnswer:'JAMES', options: [{text:'GIROUD'}, {text:'JAMES'}, {text:'MESSI'}, {text:'RONALDO'}], hasPhoto: false},
+            {id: '5', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}], hasPhoto: false}]}]
+        },
+        methods: {
+          startQuiz: function (){
+            this.showQuestions = true
+            this.showResult = false
+            this.showStart = false
+            this.questionsSelected = this.quizs[this.quizSelectedID-1].questions
+            for (let i=0; i<this.questionsSelected.length; i++) {
+              this.questionsSelected[i].myanwser = ''
+            }
+          },
+          submitQuiz: function (){
+            if(confirm('Do you want to submit the questionnaire?')){
+              this.showQuestions = false
+              this.showResult = true
+              this.showStart = false
+            }
+          },
+          cancelQuiz: function (){
+            this.showQuestions = false
+            this.showResult = false
+            this.showStart = true
+          },
+          backToHome: function (){
+            this.showQuestions = false
+            this.showResult = false
+            this.showStart = true
+          },
+          score: function (){
+            // var length = this.quizs[this.quizSelectedID-1].questions.length
+            // var correctNum = 0
+            // for (let i=0; i<length; i++) {
+            //   if (this.quizs[this.quizSelectedID-1].questions[i].myanwser == this.quizs[this.quizSelectedID-1].questions[i].correctAnswer) {
+            //     correctNum++
+            //   }
+            // }
+            // return (correctNum/length * 10).toFixed(2)
+
+            var length = this.questionsSelected.length
+            var correctNum = 0
+            for (let i=0; i<length; i++) {
+              if (this.questionsSelected[i].myanwser == this.questionsSelected[i].correctAnswer) {
+                correctNum++
+              }
+            }
+            return (correctNum/length * 10).toFixed(2)
+          }
+        },
+        computed: {
+
+        },
+        mounted () {
+        }
+      })
+
+    </script>
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <style>
+      #app {
+        height: 800px;
+        width: 100%;
+      }
+
+      .container{
+        position: relative;
+        background-color:	#00F5FF;
+        text-align: center;
+      }
+
+      .selections {
+        width:180px;
+		    height:50px;
+		    margin:0 auto;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .questions {
+        position: relative;
+        height: 80%;
+        width: 100%;
+        margin-top: 50px;
+      }
+
+      .scrollView {
+        height: 600px;
+        overflow:scroll;
+        overflow-x:hidden;
+      }
+
+      ul{
+        list-style-type: none;
+        text-align: left;
+      }
+
+      li {
+        font-size: 20px;
+        display: inline;
+      }
+
+      .btns{
+        position: absolute;
+        bottom: 0;
+        left:50%;
+        margin-left: -177px;
+      }
+
+      .btns button {
+        margin: 5px 50px;
+      }
+
+      .correct {
+        color: green;
+      }
+
+      .wrong {
+        color: red;
+      }
+
+      .result {
+        position: relative;
+        height: 80%;
+        width: 100%;
+        margin-top: 30px;
+      }
+
+      .score {
+        position: absolute;
+        bottom: 0;
+        left:50%;
+        margin-left: -82px;
+        color:ORANGE;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>Quizz</title>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h1 style="margin-bottom:30px;">Quizz</h1>
+      <button class="btn btn-primary" @click="startQuiz" v-show="!showQuestions">{{btn_startOrRestart}}</button>
+      <div class="questions" v-show="showQuestions">
+        <div class="scrollView">
+          <question-item v-for="question in questions" v-bind:question-data="question" v-bind:key="question.id">
+          </question-item>
+        </div>
+        <div class="btns">
+          <button class="btn btn-primary" type="button"  @click="submitQuiz">Submit</button>
+          <button class="btn btn-danger" type="button" @click="cancelQuiz">Cancel</button>
+        </div>
+      </div>
+      <div class="result" v-show="showResult" >
+        <div class="scrollView">
+          <answer-item v-for="question in questions" v-bind:answer-data="question" v-bind:key="question.id">
+          </answer-item>
+        </div>
+        <h5 class="score">Your score is {{score()}}!</h5>
+      </div>
+    </div>
+
+    <script>
+      Vue.component('question-item', {
+        props: ['questionData'],
+        template: '<div><h3 style="text-align:left">{{questionData.id}}.{{questionData.title}}</h3><div class="row"><ul><li v-for="option in questionData.options" class="col-xs-12 col-md-8"><input type="radio" v-model="questionData.myanwser" v-bind:value="option.text">{{option.text}}</input> </li></ul></div></div>'
+        // template: '<ol><li v-for="option in questionData.options">{{option.text}}</li></ol>',
+        // data: function(){
+        //   return {thisOptions : this.questionData.options}
+        // }
+      })
+
+      Vue.component('answer-item', {
+        props: ['answerData'],
+        template: '<div style="text-align:left;"><h3>{{answerData.id}}.{{answerData.title}}</h3><h5>You have chosed the "{{answerData.myanwser}}"</h5><h5 v-bind:class="{correct : answerData.myanwser == answerData.correctAnswer, wrong : answerData.myanwser != answerData.correctAnswer }">The right answer is "{{answerData.correctAnswer}}"</h5></div>'
+      })
+
+      new Vue({
+        el: '#app',
+        data: {
+            showQuestions: false,
+            showResult: false,
+            btn_startOrRestart: 'Start',
+            questions: [{id: '1', title:'Is Paris from France?', myanwser:'' , correctAnswer:'YES', options: [{text:'YES'}, {text:'NO'}]},
+            {id:'2', title:'Mpabbé is from which country?', myanwser:'', correctAnswer:'FRANCE', options: [{text:'FRANCE'}, {text:'ENGLAND'}, {text:'HOLLAND'}]},
+            {id: '3', title:'Which fruit is green?', myanwser:'' , correctAnswer:'KIWI', options: [{text:'KIWI'}, {text:'ORANGE'}, {text:'APPLE'}]},
+            {id: '4', title:'Who is a basketball player?', myanwser:'' , correctAnswer:'JAMES', options: [{text:'GIROUD'}, {text:'JAMES'}, {text:'MESSI'}, {text:'RONALDO'}]},
+            {id: '5', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}]},
+            {id: '6', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}]},
+            {id: '7', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}]},
+            {id: '8', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}]},
+            {id: '9', title:'Which word is correct?', myanwser:'' , correctAnswer:'BANANA', options: [{text:'BANENA'}, {text:'BANANA'}, {text:'BENANA'}]}]
+        },
+        methods: {
+          startQuiz: function (){
+            this.showQuestions = true
+            this.showResult = false
+            for (let i=0; i<this.questions.length; i++) {
+              this.questions[i].myanwser = ''
+            }
+          },
+          submitQuiz: function (){
+            if(confirm('Do you want to submit the questionnaire?')){
+              this.showQuestions = false
+              this.showResult = true
+              this.btn_startOrRestart = 'Restart'
+            }
+          },
+          cancelQuiz: function (){
+            this.showQuestions = false
+            this.showResult = false
+            this.btn_startOrRestart = 'Start'
+          },
+          score: function (){
+            // console.log("this.questions.length = " + this.questions.length);
+            // console.log("this.questions[0].myanwser = " + this.questions[0].myanwser);
+            var length = this.questions.length
+            var correctNum = 0
+            for (let i=0; i<this.questions.length; i++) {
+              if (this.questions[i].myanwser == this.questions[i].correctAnswer) {
+                correctNum++
+              }
+            }
+            return (correctNum/length * 10).toFixed(2)
+          }
+        },
+        computed: {
+
+        },
+        mounted () {
+        }
+      })
+
+    </script>
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <style>
+      #app {
+        height: 800px;
+        width: 100%;
+      }
+      .container{
+        position: relative;
+        background-color:	#00F5FF;
+        text-align: center;
+      }
+
+      .questions {
+        position: relative;
+        height: 80%;
+        width: 100%;
+        margin-top: 50px;
+      }
+
+      .scrollView {
+        height: 600px;
+        overflow:scroll;
+        overflow-x:hidden;
+      }
+
+      ul{
+        list-style-type: none;
+        text-align: left;
+      }
+
+      li {
+        font-size: 20px;
+        display: inline;
+      }
+
+      .btns{
+        position: absolute;
+        bottom: 0;
+        left:50%;
+        margin-left: -177px;
+      }
+
+      .btns button {
+        margin: 5px 50px;
+      }
+
+      .correct {
+        color: green;
+      }
+
+      .wrong {
+        color: red;
+      }
+
+      .result {
+        position: relative;
+        height: 80%;
+        width: 100%;
+        margin-top: 30px;
+      }
+
+      .score {
+        position: absolute;
+        bottom: 0;
+        left:50%;
+        margin-left: -82px;
+        color:ORANGE;
+      }
+    </style>
+  </body>
+</html>
